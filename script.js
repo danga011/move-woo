@@ -586,14 +586,52 @@ document.head.appendChild(lightboxStyle);
 // Gallery item click handlers
 document.querySelectorAll('.gallery-item').forEach(item => {
     item.addEventListener('click', function() {
-        const img = this.querySelector('img');
-        const caption = this.querySelector('.overlay-content p');
-        
-        lightboxImg.src = img.src;
-        lightboxImg.alt = img.alt;
-        lightboxCaption.textContent = caption ? caption.textContent : img.alt;
-        lightbox.classList.add('active');
-        document.body.style.overflow = 'hidden';
+        // Check if it's a video item
+        if (this.classList.contains('gallery-video')) {
+            const video = this.querySelector('video');
+            if (video) {
+                // Create video lightbox
+                const videoLightbox = document.createElement('div');
+                videoLightbox.className = 'lightbox active';
+                videoLightbox.innerHTML = `
+                    <div class="lightbox-content">
+                        <span class="lightbox-close">&times;</span>
+                        <video src="${video.src}" controls autoplay style="max-width: 90%; max-height: 80vh; border-radius: 10px;">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="lightbox-caption">${this.querySelector('.overlay-content p').textContent}</div>
+                    </div>
+                `;
+                document.body.appendChild(videoLightbox);
+                document.body.style.overflow = 'hidden';
+                
+                // Close video lightbox
+                const closeBtn = videoLightbox.querySelector('.lightbox-close');
+                closeBtn.addEventListener('click', () => {
+                    videoLightbox.remove();
+                    document.body.style.overflow = '';
+                });
+                
+                videoLightbox.addEventListener('click', (e) => {
+                    if (e.target === videoLightbox) {
+                        videoLightbox.remove();
+                        document.body.style.overflow = '';
+                    }
+                });
+            }
+        } else {
+            // Image lightbox
+            const img = this.querySelector('img');
+            const caption = this.querySelector('.overlay-content p');
+            
+            if (img) {
+                lightboxImg.src = img.src;
+                lightboxImg.alt = img.alt;
+                lightboxCaption.textContent = caption ? caption.textContent : img.alt;
+                lightbox.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
     });
 });
 
